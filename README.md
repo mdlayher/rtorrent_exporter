@@ -68,6 +68,7 @@ docker push tehwey/docker-rtorrent-exporter
 docker create --name=prom-rtorrent-exporter \
 -p 9005:9135 \
 -e RTORRENT_ADDR=http://localhost:8005/RPC2 \
+-e PROM_NAMESPACE=rtorrent_trackername \
 tehwey/docker-rtorrent-exporter
 ```
 
@@ -77,6 +78,7 @@ tehwey/docker-rtorrent-exporter
 docker run --name=prom-rtorrent-exporter \
 -p 9005:9135 \
 -e RTORRENT_ADDR=http://localhost:8005/RPC2 \
+-e PROM_NAMESPACE=rtorrent_trackername \
 tehwey/docker-rtorrent-exporter
 ```
 

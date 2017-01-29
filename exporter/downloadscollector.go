@@ -3,6 +3,8 @@ package rtorrentexporter
 import (
 	"log"
 
+	"os"
+
 	"github.com/mdlayher/rtorrent"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -59,6 +61,14 @@ func NewDownloadsCollector(ds DownloadsSource) *DownloadsCollector {
 	var (
 		labels = []string{"info_hash", "name"}
 	)
+
+	// namespace is the top-level namespace for this rTorrent exporter.
+	var namespace string
+	if os.Getenv("PROM_NAMESPACE") == "" {
+		namespace = "rtorrent"
+	} else {
+		namespace = os.Getenv("PROM_NAMESPACE")
+	}
 
 	return &DownloadsCollector{
 		Downloads: prometheus.NewDesc(
