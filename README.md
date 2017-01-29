@@ -8,8 +8,7 @@ Prometheus exporter.
 
 MIT Licensed.
 
-Usage
------
+# Usage
 
 Available flags for `rtorrent_exporter` include:
 
@@ -31,10 +30,47 @@ $ ./rtorrent_exporter -rtorrent.addr http://127.0.0.1/RPC2
 2016/03/09 17:39:40 starting rTorrent exporter on ":9135" for server "http://127.0.0.1/RPC2"
 ```
 
-Sample
-------
+# Sample
 
 Here is a screenshot of a sample dashboard created using [`grafana`](https://github.com/grafana/grafana)
 with metrics from exported from `rtorrent_exporter`.
 
 ![sample](https://cloud.githubusercontent.com/assets/1926905/13891308/bad263be-ed26-11e5-9601-9d770d95c538.png)
+
+# Building a docker container
+
+*Replace `tehwey` with your own Docker Hub name if you want to create your own image.*
+
+Build binary for the platform needed, in this case Linux as it's a Synology box,
+if you want to find out the architecture of your target just run `uname -a` on the target system.
+
+```
+GOOS=linux GOARCH=amd64 go build cmd/rtorrent_exporter/main.go && mv main rtorrent_exporter
+```
+
+**Build Docker image and push:**
+
+```
+docker build -t tehwey/docker-rtorrent-exporter .
+docker tag <image ID> tehwey/docker-rtorrent-exporter
+docker push tehwey/docker-rtorrent-exporter
+```
+
+**Create Docker container:**
+
+```
+docker create --name=prom-rtorrent-btn \
+-p 9005:9135 \
+-e RTORRENT_ADDR=http://localhost:8005/RPC2 \
+tehwey/docker-rtorrent-exporter
+```
+
+**Run Docker container:**
+
+```
+docker run --name=prom-rtorrent-btn \
+-p 9005:9135 \
+-e RTORRENT_ADDR=http://localhost:8005/RPC2 \
+tehwey/docker-rtorrent-exporter
+```
+
