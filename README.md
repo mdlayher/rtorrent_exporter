@@ -15,19 +15,25 @@ Available flags for `rtorrent_exporter` include:
 ```
 $ ./rtorrent_exporter -h
 Usage of ./rtorrent_exporter:
-  -rtorrent.addr string
+  -rtorrent_addr string
         address of rTorrent XML-RPC server
-  -telemetry.addr string
+  -telemetry_addr string
         host:port for rTorrent exporter (default ":9135")
-  -telemetry.path string
+  -telemetry_path string
         URL path for surfacing collected metrics (default "/metrics")
 ```
 
 An example of using `rtorrent_exporter`:
 
 ```
-$ ./rtorrent_exporter -rtorrent.addr http://127.0.0.1/RPC2
+$ ./rtorrent_exporter -rtorrent_addr http://127.0.0.1/RPC2
 2016/03/09 17:39:40 starting rTorrent exporter on ":9135" for server "http://127.0.0.1/RPC2"
+```
+
+You can also use environment variables instead of flags, for example:
+
+```
+$ RTORRENT_ADDR=http://127.0.0.1/RPC2 ./rtorrent_exporter
 ```
 
 # Sample
@@ -37,7 +43,7 @@ with metrics from exported from `rtorrent_exporter`.
 
 ![sample](https://cloud.githubusercontent.com/assets/1926905/13891308/bad263be-ed26-11e5-9601-9d770d95c538.png)
 
-# Building a docker container
+# Building and running a Docker container
 
 *Replace `tehwey` with your own Docker Hub name if you want to create your own image.*
 
@@ -59,7 +65,7 @@ docker push tehwey/docker-rtorrent-exporter
 **Create Docker container:**
 
 ```
-docker create --name=prom-rtorrent-btn \
+docker create --name=prom-rtorrent-exporter \
 -p 9005:9135 \
 -e RTORRENT_ADDR=http://localhost:8005/RPC2 \
 tehwey/docker-rtorrent-exporter
@@ -68,7 +74,7 @@ tehwey/docker-rtorrent-exporter
 **Run Docker container:**
 
 ```
-docker run --name=prom-rtorrent-btn \
+docker run --name=prom-rtorrent-exporter \
 -p 9005:9135 \
 -e RTORRENT_ADDR=http://localhost:8005/RPC2 \
 tehwey/docker-rtorrent-exporter
