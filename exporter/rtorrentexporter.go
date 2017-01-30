@@ -9,6 +9,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+const (
+	// namespace is the top-level namespace for this rTorrent exporter.
+	namespace = "rtorrent"
+)
+
 // An Exporter is a Prometheus exporter for rTorrent metrics.
 // It wraps all rTorrent metrics collectors and provides a single global
 // exporter which can serve metrics. It also ensures that the collection
