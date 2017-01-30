@@ -47,13 +47,6 @@ with metrics from exported from `rtorrent_exporter`.
 
 *Replace `tehwey` with your own Docker Hub name if you want to create your own image.*
 
-Build binary for the platform needed, in this case Linux as it's a Synology box,
-if you want to find out the architecture of your target just run `uname -a` on the target system.
-
-```
-GOOS=linux GOARCH=amd64 go build cmd/rtorrent_exporter/main.go && mv main rtorrent_exporter
-```
-
 **Build Docker image and push:**
 
 ```
