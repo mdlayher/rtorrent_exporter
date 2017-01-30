@@ -5,10 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/namsral/flag"
-
 	"github.com/mdlayher/rtorrent"
 	"github.com/mdlayher/rtorrent_exporter"
+	"github.com/namsral/flag"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -25,7 +24,7 @@ func main() {
 	flag.Parse()
 
 	if *rtorrentAddr == "" {
-		log.Fatal("address of rTorrent XML-RPC server must be specified with '-rtorrent.addr' flag")
+		log.Fatal("address of rTorrent XML-RPC server must be specified with '-rtorrent_addr' flag")
 	}
 
 	// Optionally enable HTTP Basic authentication
