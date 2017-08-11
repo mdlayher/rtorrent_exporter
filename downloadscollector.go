@@ -319,14 +319,14 @@ func (c *DownloadsCollector) collectActiveDownloads(ch chan<- prometheus.Metric)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.DownloadRateBytes,
-			prometheus.CounterValue,
+			prometheus.GaugeValue,
 			float64(down),
 			labels...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.UploadRateBytes,
-			prometheus.CounterValue,
+			prometheus.GaugeValue,
 			float64(up),
 			labels...,
 		)
@@ -371,14 +371,14 @@ func (c *DownloadsCollector) collectAllDownloads(ch chan<- prometheus.Metric) (*
 
 		ch <- prometheus.MustNewConstMetric(
 			c.DownloadTotalBytes,
-			prometheus.GaugeValue,
+			prometheus.CounterValue,
 			float64(down),
 			labels...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.UploadTotalBytes,
-			prometheus.GaugeValue,
+			prometheus.CounterValue,
 			float64(up),
 			labels...,
 		)
