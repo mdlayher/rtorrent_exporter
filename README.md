@@ -35,6 +35,6 @@ Sample
 ------
 
 Here is a screenshot of a sample dashboard created using [`grafana`](https://github.com/grafana/grafana)
-with metrics from exported from `rtorrent_exporter`.
+with metrics from exported from `rtorrent_exporter` (see sample_dash.json).
 
-![sample](https://cloud.githubusercontent.com/assets/1926905/13891308/bad263be-ed26-11e5-9601-9d770d95c538.png)
+![sample](https://user-images.githubusercontent.com/766820/29206006-923e7b20-7e45-11e7-84ae-1e51d0755f92.jpg)
