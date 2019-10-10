@@ -23,8 +23,12 @@ type DownloadsSource interface {
 	Active() ([]string, error)
 
 	BaseFilename(infoHash string) (string, error)
+	TrackerDomain(infoHash string) (string, error)
 	DownloadRate(infoHash string) (int, error)
 	UploadRate(infoHash string) (int, error)
+
+	DownloadTotal(infoHash string) (int, error)
+	UploadTotal(infoHash string) (int, error)
 }
 
 // A DownloadsCollector is a Prometheus collector for metrics regarding rTorrent
@@ -43,6 +47,9 @@ type DownloadsCollector struct {
 	DownloadRateBytes *prometheus.Desc
 	UploadRateBytes   *prometheus.Desc
 
+	DownloadTotalBytes *prometheus.Desc
+	UploadTotalBytes   *prometheus.Desc
+
 	ds DownloadsSource
 }
 
@@ -57,7 +64,7 @@ func NewDownloadsCollector(ds DownloadsSource) *DownloadsCollector {
 	)
 
 	var (
-		labels = []string{"info_hash", "name"}
+		labels = []string{"info_hash", "name", "tracker"}
 	)
 
 	return &DownloadsCollector{
@@ -139,6 +146,20 @@ func NewDownloadsCollector(ds DownloadsSource) *DownloadsCollector {
 			nil,
 		),
 
+		DownloadTotalBytes: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "download_total_bytes"),
+			"Current download total in bytes.",
+			labels,
+			nil,
+		),
+
+		UploadTotalBytes: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "upload_total_bytes"),
+			"Current upload total in bytes.",
+			labels,
+			nil,
+		),
+
 		ds: ds,
 	}
 }
@@ -151,6 +172,10 @@ func (c *DownloadsCollector) collect(ch chan<- prometheus.Metric) (*prometheus.D
 	}
 
 	if desc, err := c.collectActiveDownloads(ch); err != nil {
+		return desc, err
+	}
+
+	if desc, err := c.collectAllDownloads(ch); err != nil {
 		return desc, err
 	}
 
@@ -271,9 +296,15 @@ func (c *DownloadsCollector) collectActiveDownloads(ch chan<- prometheus.Metric)
 			return c.DownloadRateBytes, err
 		}
 
+		tracker, err := c.ds.TrackerDomain(a)
+		if err != nil {
+			return c.DownloadRateBytes, err
+		}
+
 		labels := []string{
 			a,
 			name,
+			tracker,
 		}
 
 		down, err := c.ds.DownloadRate(a)
@@ -304,6 +335,58 @@ func (c *DownloadsCollector) collectActiveDownloads(ch chan<- prometheus.Metric)
 	return nil, nil
 }
 
+// collectAllDownloads collects information about all downloads
+func (c *DownloadsCollector) collectAllDownloads(ch chan<- prometheus.Metric) (*prometheus.Desc, error) {
+	all, err := c.ds.All()
+	if err != nil {
+		return c.Downloads, err
+	}
+
+	for _, a := range all {
+		name, err := c.ds.BaseFilename(a)
+		if err != nil {
+			return c.DownloadTotalBytes, err
+		}
+
+		tracker, err := c.ds.TrackerDomain(a)
+		if err != nil {
+			return c.DownloadTotalBytes, err
+		}
+
+		labels := []string{
+			a,
+			name,
+			tracker,
+		}
+
+		down, err := c.ds.DownloadTotal(a)
+		if err != nil {
+			return c.DownloadTotalBytes, err
+		}
+
+		up, err := c.ds.UploadTotal(a)
+		if err != nil {
+			return c.UploadTotalBytes, err
+		}
+
+		ch <- prometheus.MustNewConstMetric(
+			c.DownloadTotalBytes,
+			prometheus.CounterValue,
+			float64(down),
+			labels...,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			c.UploadTotalBytes,
+			prometheus.CounterValue,
+			float64(up),
+			labels...,
+		)
+	}
+
+	return nil, nil
+}
+
 // Describe sends the descriptors of each metric over to the provided channel.
 // The corresponding metric values are sent separately.
 func (c *DownloadsCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -320,6 +403,9 @@ func (c *DownloadsCollector) Describe(ch chan<- *prometheus.Desc) {
 
 		c.DownloadRateBytes,
 		c.UploadRateBytes,
+
+		c.DownloadTotalBytes,
+		c.UploadTotalBytes,
 	}
 
 	for _, d := range ds {

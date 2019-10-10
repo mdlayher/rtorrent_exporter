@@ -49,7 +49,7 @@ func main() {
 		http.Redirect(w, r, *metricsPath, http.StatusMovedPermanently)
 	})
 
-	log.Printf("starting rTorrent exporter on %q for server %q (authentication: %v)",
+	log.Printf("starting rTorrent v0.1.1 exporter on %q for server %q (authentication: %v)",
 		*telemetryAddr, *rtorrentAddr, rt != nil)
 
 	if err := http.ListenAndServe(*telemetryAddr, nil); err != nil {
