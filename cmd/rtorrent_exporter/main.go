@@ -28,13 +28,21 @@ func main() {
 		log.Fatal("address of rTorrent XML-RPC server must be specified with '-rtorrent.addr' flag")
 	}
 
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.RegisterProtocol("scgi", &rtorrentexporter.SCGITransport{
+		DialContext: transport.DialContext,
+	})
+	var rt http.RoundTripper = transport
+
 	// Optionally enable HTTP Basic authentication
-	var rt http.RoundTripper
+	auth := false
 	if u, p := *rtorrentUsername, *rtorrentPassword; u != "" && p != "" {
 		rt = &authRoundTripper{
-			Username: u,
-			Password: p,
+			Username:  u,
+			Password:  p,
+			Transport: rt,
 		}
+		auth = true
 	}
 
 	c, err := rtorrent.New(*rtorrentAddr, rt)
@@ -50,7 +58,7 @@ func main() {
 	})
 
 	log.Printf("starting rTorrent exporter on %q for server %q (authentication: %v)",
-		*telemetryAddr, *rtorrentAddr, rt != nil)
+		*telemetryAddr, *rtorrentAddr, auth)
 
 	if err := http.ListenAndServe(*telemetryAddr, nil); err != nil {
 		log.Fatalf("cannot start rTorrent exporter: %s", err)
@@ -62,11 +70,12 @@ var _ http.RoundTripper = &authRoundTripper{}
 // An authRoundTripper is a http.RoundTripper which adds HTTP Basic authentication
 // to each HTTP request.
 type authRoundTripper struct {
-	Username string
-	Password string
+	Username  string
+	Password  string
+	Transport http.RoundTripper
 }
 
 func (rt *authRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	r.SetBasicAuth(rt.Username, rt.Password)
-	return http.DefaultTransport.RoundTrip(r)
+	return rt.Transport.RoundTrip(r)
 }

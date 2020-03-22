@@ -24,11 +24,21 @@ Usage of ./rtorrent_exporter:
         URL path for surfacing collected metrics (default "/metrics")
 ```
 
-An example of using `rtorrent_exporter`:
+Examples of using `rtorrent_exporter`:
 
 ```
 $ ./rtorrent_exporter -rtorrent.addr http://127.0.0.1/RPC2
 2016/03/09 17:39:40 starting rTorrent exporter on ":9135" for server "http://127.0.0.1/RPC2"
+```
+
+```
+$ ./rtorrent_exporter -rtorrent.addr scgi://127.0.0.1:5000
+2016/03/09 17:39:40 starting rTorrent exporter on ":9135" for server "scgi://127.0.0.1:5000"
+```
+
+```
+$ ./rtorrent_exporter -rtorrent.addr scgi:///home/user/rtorrent/rpc.socket
+2016/03/09 17:39:40 starting rTorrent exporter on ":9135" for server "scgi:///home/user/rtorrent/rpc.socket"
 ```
 
 Docker
